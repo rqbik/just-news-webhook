@@ -100,6 +100,7 @@ export default async (request: NowRequest, response: NowResponse) => {
           : fullText;
 
       const message = {
+        content: '@here',
         embeds: [
           {
             title: getMetadata(pageText, METADATA_TITLE),

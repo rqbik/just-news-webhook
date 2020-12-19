@@ -3,8 +3,8 @@ import fetch from 'node-fetch';
 
 const { GITLAB_TOKEN, DISCORD_WEBHOOK_URL } = process.env;
 const THEME_COLOR = 3828722;
-const METADATA_TITLE = /(?=(?:---))[^Ї]+title:.*'(.*)'/gm;
-const METADATA_DATE = /(?=(?:---))[^Ї]+date:.*'(.*)'/gm;
+const METADATA_TITLE = /(?=(?:---))[^Ї]+title:[^']*'([^']*)'/gm;
+const METADATA_DATE = /(?=(?:---))[^Ї]+date:[^']*'([^']*)'/gm;
 
 const getMetadata = (text: string, regex: RegExp) => regex.exec(text)[1];
 

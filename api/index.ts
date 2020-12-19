@@ -8,7 +8,6 @@ const METADATA_DATE = /(?=(?:---))[^Ї]+date:[^']*'([^']*)'/gm;
 
 const getMetadata = (text: string, regex: RegExp) => {
   const result = regex.exec(text);
-  console.log('Getting Metadata', text, regex, result, result[1]);
   return result[1];
 };
 
@@ -85,7 +84,7 @@ export default async (request: NowRequest, response: NowResponse) => {
       const page = await fetch(path);
       const pageText = await page.text();
 
-      console.log(path, pageText);
+      console.log(path);
 
       // Убираем метадату новости
       const metaDataText = pageText.split('---');
@@ -119,8 +118,6 @@ export default async (request: NowRequest, response: NowResponse) => {
           },
         ],
       };
-
-      console.log(message);
 
       // Отправляем сообщение в дискорд
       await fetch(DISCORD_WEBHOOK_URL, {

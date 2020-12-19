@@ -6,6 +6,8 @@ const THEME_COLOR = 3828722;
 const METADATA_TITLE = /(?=(?:---))[^Ї]+title:.*'(.*)'/gm;
 const METADATA_DATE = /(?=(?:---))[^Ї]+date:.*'(.*)'/gm;
 
+const getMetadata = (text: string, regex: RegExp) => regex.exec(text)[1];
+
 interface GitlabJobEvent {
   build_name: 'build' | 'deploy';
   build_status: 'failed' | 'pending' | 'success';
@@ -22,6 +24,7 @@ const newsGitlabBasePath =
 
 const newsWebsiteBasePath = 'https://justmc.ru/news';
 
+// Достаёт из текста упомянутые новости
 const getReferencedNews = (commitMessage: string) => {
   const message = commitMessage;
   const regex = /(news\(([^)]+)\))/gm;
@@ -72,8 +75,6 @@ export default async (request: NowRequest, response: NowResponse) => {
       .status(400)
       .json({ error: 'No referenced news in commit message' });
 
-  console.log('referenced', referencedNews);
-
   await Promise.all(
     referencedNews.map(async (pageName) => {
       const path = `${newsGitlabBasePath}/${pageName}.md`;
@@ -85,17 +86,18 @@ export default async (request: NowRequest, response: NowResponse) => {
       metaDataText.shift();
       metaDataText.shift();
 
-      const untrimmedText = metaDataText.join('---').trim();
+      const fullText = metaDataText.join('---').trim();
 
+      // Сжимаем текст до 300 символов
       const text =
-        untrimmedText.length > 300
-          ? untrimmedText.substring(0, 297) + '...'
-          : untrimmedText;
+        fullText.length > 300
+          ? fullText.substring(0, 297).trim() + '...'
+          : fullText;
 
       const message = {
         embeds: [
           {
-            title: METADATA_TITLE.exec(pageText)[1],
+            title: getMetadata(pageText, METADATA_TITLE),
             color: THEME_COLOR,
             image: {
               url: `https://gitlab.com/justmc/justcontent/-/raw/master/content/news/thumbnails/${pageName}.png`,
@@ -103,7 +105,7 @@ export default async (request: NowRequest, response: NowResponse) => {
             footer: {
               text: 'JustMC',
             },
-            timestamp: METADATA_DATE.exec(pageText)[1],
+            timestamp: getMetadata(pageText, METADATA_DATE),
             description: `${text}
               
               [Читать на сайте](${newsWebsiteBasePath}/${pageName})
@@ -112,8 +114,7 @@ export default async (request: NowRequest, response: NowResponse) => {
         ],
       };
 
-      console.log(message);
-
+      // Отправляем сообщение в дискорд
       await fetch(DISCORD_WEBHOOK_URL, {
         method: 'POST',
         body: JSON.stringify(message),

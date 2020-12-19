@@ -91,7 +91,7 @@ export default async (request: NowRequest, response: NowResponse) => {
       metaDataText.shift();
       metaDataText.shift();
 
-      const fullText = metaDataText.join('---').trim().replace('\\', '');
+      const fullText = metaDataText.join('---').trim().replace(/\\/g, '');
 
       // Сжимаем текст до 300 символов
       const text =

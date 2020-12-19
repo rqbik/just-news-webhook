@@ -81,6 +81,8 @@ export default async (request: NowRequest, response: NowResponse) => {
       const page = await fetch(path);
       const pageText = await page.text();
 
+      console.log(path, pageText);
+
       // Убираем метадату новости
       const metaDataText = pageText.split('---');
       metaDataText.shift();
@@ -114,6 +116,8 @@ export default async (request: NowRequest, response: NowResponse) => {
         ],
       };
 
+      console.log(message);
+
       // Отправляем сообщение в дискорд
       await fetch(DISCORD_WEBHOOK_URL, {
         method: 'POST',
@@ -121,7 +125,9 @@ export default async (request: NowRequest, response: NowResponse) => {
         headers: {
           'Content-Type': 'application/json',
         },
-      });
+      })
+        .then((r) => r.text())
+        .then(console.log);
     })
   );
 

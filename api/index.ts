@@ -23,6 +23,8 @@ export default (request: NowRequest, response: NowResponse) => {
     build_status,
   } = request.body as GitlabJobEvent;
 
+  console.log(repository, build_name, build_status);
+
   if (
     repository.name !== 'JustWebsite' ||
     build_name !== 'deploy' ||

@@ -5,6 +5,7 @@
   "author": "rqbik",
   "license": "MIT",
   "devDependencies": {
+    "@types/node-fetch": "^2.5.7",
     "@vercel/node": "^1.8.5"
   },
   "dependencies": {

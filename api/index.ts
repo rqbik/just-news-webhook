@@ -33,7 +33,7 @@ const getReferencedNews = (commitMessage: string) => {
   return result;
 };
 
-export default (request: NowRequest, response: NowResponse) => {
+export default async (request: NowRequest, response: NowResponse) => {
   // Проверяем токен
   if (request.headers['x-gitlab-token'] !== GITLAB_TOKEN)
     response.status(401).json({ error: 'Unathorized' });
@@ -71,50 +71,50 @@ export default (request: NowRequest, response: NowResponse) => {
 
   console.log('referenced', referencedNews);
 
-  referencedNews.forEach((page) => {
-    const path = `${newsBasePath}/${page}.md`;
+  await Promise.all(
+    referencedNews.map(async (pageName) => {
+      const path = `${newsBasePath}/${pageName}.md`;
+      const page = await fetch(path);
+      const pageText = await page.text();
 
-    fetch(path)
-      .then((p) => p.text())
-      .then((pageText) => {
-        // Убираем метадату новости
-        const metaDataText = pageText.split('---');
-        metaDataText.shift();
-        metaDataText.shift();
+      // Убираем метадату новости
+      const metaDataText = pageText.split('---');
+      metaDataText.shift();
+      metaDataText.shift();
 
-        const untrimmedText = metaDataText.join('---').trim();
+      const untrimmedText = metaDataText.join('---').trim();
 
-        const text =
-          untrimmedText.length > 300
-            ? untrimmedText.substring(0, 297) + '...'
-            : untrimmedText;
+      const text =
+        untrimmedText.length > 300
+          ? untrimmedText.substring(0, 297) + '...'
+          : untrimmedText;
 
-        const message = {
-          content: 'Новая новость!',
-          embeds: [
-            {
-              title: METADATA_TITLE.exec(pageText)[1],
-              url: path,
-              color: THEME_COLOR,
-              description: `${text}
+      const message = {
+        content: 'Новая новость!',
+        embeds: [
+          {
+            title: METADATA_TITLE.exec(pageText)[1],
+            url: path,
+            color: THEME_COLOR,
+            description: `${text}
               
               [Читать на сайте](${path})
               `,
-            },
-          ],
-        };
-
-        console.log(message);
-
-        fetch(DISCORD_WEBHOOK_URL, {
-          method: 'POST',
-          body: JSON.stringify(message),
-          headers: {
-            'Content-Type': 'application/json',
           },
-        });
+        ],
+      };
+
+      console.log(message);
+
+      await fetch(DISCORD_WEBHOOK_URL, {
+        method: 'POST',
+        body: JSON.stringify(message),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-  });
+    })
+  );
 
   response.status(200).json({ success: true });
 };

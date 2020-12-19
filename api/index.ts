@@ -7,8 +7,9 @@ const METADATA_TITLE = /(?=(?:---))[^Ї]+title:[^']*'([^']*)'/gm;
 const METADATA_DATE = /(?=(?:---))[^Ї]+date:[^']*'([^']*)'/gm;
 
 const getMetadata = (text: string, regex: RegExp) => {
-  console.log('Getting Metadata', text, regex, regex.exec(text));
-  return regex.exec(text)[1];
+  const result = regex.exec(text);
+  console.log('Getting Metadata', text, regex, result, result[1]);
+  return result[1];
 };
 
 interface GitlabJobEvent {

@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 const { GITLAB_TOKEN, DISCORD_WEBHOOK_URL } = process.env;
 const THEME_COLOR = 3828722;
 const METADATA_TITLE = /(?=(?:---))[^Ї]+title:.*'(.*)'/gm;
+const METADATA_DATE = /(?=(?:---))[^Ї]+date:.*'(.*)'/gm;
 
 interface GitlabJobEvent {
   build_name: 'build' | 'deploy';
@@ -90,12 +91,17 @@ export default async (request: NowRequest, response: NowResponse) => {
           : untrimmedText;
 
       const message = {
-        content: 'Новая новость!',
         embeds: [
           {
             title: METADATA_TITLE.exec(pageText)[1],
-            url: path,
             color: THEME_COLOR,
+            image: {
+              url: `https://gitlab.com/justmc/justcontent/-/raw/master/content/news/thumbnails/${pageName}.png`,
+            },
+            footer: {
+              text: 'JustMC',
+            },
+            timestamp: METADATA_DATE.exec(pageText)[1],
             description: `${text}
               
               [Читать на сайте](${path})

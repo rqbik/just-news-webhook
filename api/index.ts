@@ -6,7 +6,10 @@ const THEME_COLOR = 3828722;
 const METADATA_TITLE = /(?=(?:---))[^Ї]+title:[^']*'([^']*)'/gm;
 const METADATA_DATE = /(?=(?:---))[^Ї]+date:[^']*'([^']*)'/gm;
 
-const getMetadata = (text: string, regex: RegExp) => regex.exec(text)[1];
+const getMetadata = (text: string, regex: RegExp) => {
+  console.log('Getting Metadata', text, regex, regex.exec(text));
+  return regex.exec(text)[1];
+};
 
 interface GitlabJobEvent {
   build_name: 'build' | 'deploy';

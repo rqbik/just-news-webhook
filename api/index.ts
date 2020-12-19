@@ -17,8 +17,10 @@ interface GitlabJobEvent {
   };
 }
 
-const newsBasePath =
+const newsGitlabBasePath =
   'https://gitlab.com/justmc/justcontent/-/raw/master/content/news';
+
+const newsWebsiteBasePath = 'https://justmc.ru/news';
 
 const getReferencedNews = (commitMessage: string) => {
   const message = commitMessage;
@@ -74,7 +76,7 @@ export default async (request: NowRequest, response: NowResponse) => {
 
   await Promise.all(
     referencedNews.map(async (pageName) => {
-      const path = `${newsBasePath}/${pageName}.md`;
+      const path = `${newsGitlabBasePath}/${pageName}.md`;
       const page = await fetch(path);
       const pageText = await page.text();
 
@@ -104,7 +106,7 @@ export default async (request: NowRequest, response: NowResponse) => {
             timestamp: METADATA_DATE.exec(pageText)[1],
             description: `${text}
               
-              [Читать на сайте](${path})
+              [Читать на сайте](${newsWebsiteBasePath}/${pageName})
               `,
           },
         ],

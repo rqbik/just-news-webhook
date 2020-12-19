@@ -1,4 +1,5 @@
 import { NowRequest, NowResponse } from '@vercel/node';
+import fetch from 'node-fetch';
 
 const { GITLAB_TOKEN, DISCORD_WEBHOOK_URL } = process.env;
 const THEME_COLOR = 3828722;

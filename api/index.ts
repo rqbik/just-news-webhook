@@ -9,6 +9,12 @@ interface GitlabJobEvent {
 }
 
 export default (request: NowRequest, response: NowResponse) => {
+  console.log(
+    request.headers['x-gitlab-event'],
+    process.env.GITLAB_TOKEN,
+    request.headers['x-gitlab-event'] !== process.env.GITLAB_TOKEN
+  );
+
   if (request.headers['x-gitlab-event'] !== process.env.GITLAB_TOKEN)
     return response.status(401).json({ error: 'Unathorized' });
 

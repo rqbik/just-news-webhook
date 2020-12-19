@@ -9,14 +9,13 @@ interface GitlabJobEvent {
 }
 
 export default (request: NowRequest, response: NowResponse) => {
-  console.log(
-    request.headers['x-gitlab-event'],
-    process.env.GITLAB_TOKEN,
-    request.headers['x-gitlab-event'] !== process.env.GITLAB_TOKEN
-  );
+  if (request.headers['x-gitlab-token'] !== process.env.GITLAB_TOKEN)
+    response.status(401).json({ error: 'Unathorized' });
 
-  if (request.headers['x-gitlab-event'] !== process.env.GITLAB_TOKEN)
-    return response.status(401).json({ error: 'Unathorized' });
+  const invalidWebhook = () =>
+    response.status(401).json({ error: 'Invalid webhook' });
+
+  if (request.headers['x-gitlab-event'] !== 'Job Hook') return invalidWebhook();
 
   const {
     repository,
@@ -29,7 +28,7 @@ export default (request: NowRequest, response: NowResponse) => {
     build_name !== 'deploy' ||
     build_status === 'failed'
   )
-    return response.status(404).json({ error: 'Invalid webhook' });
+    return invalidWebhook();
 
   console.log(request.body, request.headers, request.rawHeaders);
   response.status(200).json({ hello: 'world!' });
